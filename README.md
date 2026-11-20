@@ -8,6 +8,17 @@ Even Realities G2 안경용 **태국어 ⇄ 한국어 실시간 통역** 앱(Eve
 
 <img src="docs/preview.png" width="320" alt="휴대폰 화면 미리보기">
 
+## 가장 쉬운 설치(컴퓨터 필요 없음)
+
+1. [console.soniox.com](https://console.soniox.com)에서 가입하고 API 키를 복사합니다.
+2. 휴대폰 Even 앱에서 **개발자 모드(Developer Mode) → Scan**을 엽니다.
+3. 아래 QR을 스캔합니다.
+4. 앱이 열리면 **설정**에 API 키를 붙여넣고 **저장하고 다시 연결**을 누릅니다.
+
+<img src="docs/install-qr.png" width="220" alt="설치 QR">
+
+QR 주소: `https://gyflea-web.github.io/even-g2-thai-translator/`
+
 ## 왜 렌즈에 태국 문자는 안 나오나요?
 
 G2 기본 펌웨어 글꼴에는 태국 문자가 없습니다. 태국 문자를 보내도 렌즈에 아무것도 표시되지 않습니다(`@evenrealities/pretext` 글꼴 표에서 태국 문자 폭이 0으로 확인됨).
@@ -19,7 +30,7 @@ G2 기본 펌웨어 글꼴에는 태국 문자가 없습니다. 태국 문자를
 2. Even 앱 **2.2.10 이상**
 3. Node.js 20 이상이 설치된 컴퓨터(설치용)
 
-## 안경에 설치하기(개발자 사이드로드)
+## 개발자용: 컴퓨터에서 띄워 설치하기
 
 컴퓨터와 휴대폰을 **같은 Wi-Fi**에 연결합니다.
 
