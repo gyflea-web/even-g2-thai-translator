@@ -10,10 +10,10 @@ Even Realities G2 안경용 **태국어 ⇄ 한국어 실시간 통역** 앱(Eve
 
 ## 가장 쉬운 설치(컴퓨터 필요 없음)
 
-1. [console.soniox.com](https://console.soniox.com)에서 가입하고 API 키를 복사합니다.
+1. 구글 계정으로 [aistudio.google.com/apikey](https://aistudio.google.com/apikey)에 들어가 **API 키 만들기(Create API key)**를 누르고 키를 복사합니다(무료).
 2. 휴대폰 Even 앱에서 **개발자 모드(Developer Mode) → Scan**을 엽니다.
 3. 아래 QR을 스캔합니다.
-4. 앱이 열리면 **설정**에 API 키를 붙여넣고 **저장하고 다시 연결**을 누릅니다.
+4. 앱이 열리면 **설정 → Gemini API 키**에 붙여넣고 **저장하고 다시 연결**을 누릅니다.
 
 <img src="docs/install-qr.png" width="220" alt="설치 QR">
 
@@ -24,9 +24,19 @@ QR 주소: `https://gyflea-web.github.io/even-g2-thai-translator/`
 G2 기본 펌웨어 글꼴에는 태국 문자가 없습니다. 태국 문자를 보내도 렌즈에 아무것도 표시되지 않습니다(`@evenrealities/pretext` 글꼴 표에서 태국 문자 폭이 0으로 확인됨).
 그래서 렌즈에는 한국어만 띄우고, 태국어는 휴대폰 화면과 음성으로 보여줍니다.
 
+## 번역 서비스 고르기
+
+| | Google Gemini (기본) | Soniox |
+|---|---|---|
+| 키 받는 곳 | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (구글 계정) | [console.soniox.com](https://console.soniox.com) |
+| 요금 | 무료 사용량 있음(분당 요청 수 제한) | 유료(사용 시간만큼) |
+| 속도 | 말이 끝나고 1~3초 뒤 문장 단위로 표시 | 말하는 도중에 바로 표시 |
+
+> Gemini 무료 사용량으로 보낸 내용은 구글이 서비스 개선에 쓸 수 있습니다. 민감한 대화라면 유료 요금제나 Soniox를 쓰세요.
+
 ## 준비물
 
-1. **Soniox API 키**: [console.soniox.com](https://console.soniox.com)에서 가입한 뒤 발급받습니다. 음성 인식과 번역을 Soniox가 처리하며, 요금은 사용한 시간만큼 본인 계정에 청구됩니다.
+1. 위 표의 API 키 중 하나
 2. Even 앱 **2.2.10 이상**
 3. Node.js 20 이상이 설치된 컴퓨터(설치용)
 
@@ -90,6 +100,8 @@ npm run pack
 
 | 파일 | 역할 |
 |---|---|
+| `src/gemini.ts`, `src/gemini-stream.ts` | Gemini 호출(문장 단위 음성 → 원문과 번역) |
+| `src/vad.ts` | 소리 크기로 말의 시작과 끝을 찾아 문장 단위로 자르기 |
 | `src/soniox.ts` | Soniox WebSocket 연결, 자동 재연결, 일시정지 중 keepalive |
 | `src/transcript.ts` | 토큰을 발화(상대/나) 단위로 정리 |
 | `src/lens.ts` | 렌즈 글자 폭에 맞춘 줄바꿈, 태국 문자 제거, 최근 줄만 표시 |
@@ -102,5 +114,6 @@ npm test
 
 ## 알려진 한계
 
+- Gemini는 실제 서버에 요청 형식과 오류 처리까지 확인했지만, 진짜 키로 음성을 번역해 보지는 못했습니다. 기본 모델 이름(`gemini-flash-lite-latest`)이 안 맞으면 설정에서 바꿀 수 있습니다.
 - 이 개발 환경에서는 Soniox 서버에 접속할 수 없어서 실제 음성 연결은 시험하지 못했습니다. 프로토콜은 Soniox 공식 SDK(`@soniox/client`)의 타입 정의를 기준으로 맞췄고, 화면 동작은 가짜 응답으로 확인했습니다. 실제 안경에서 처음 실행할 때 연결 오류가 나면 휴대폰 화면 상단에 원인이 표시됩니다.
 - 렌즈에 태국 문자를 직접 띄우려면 펌웨어 글꼴을 바꿔야 합니다. 커뮤니티 프로젝트 [rayriffy/even-g2-thai](https://github.com/rayriffy/even-g2-thai)가 있지만, 비공식 펌웨어 패치라 보증과 안정성 위험이 있습니다.

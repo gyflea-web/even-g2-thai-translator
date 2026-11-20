@@ -1,7 +1,7 @@
 // Phone screen: status, the "show to the other person" card, the conversation
 // log, settings and the lens preview.
 
-import type { MicSource, Settings } from './settings'
+import type { MicSource, Provider, Settings } from './settings'
 import type { TranscriptView, Utterance } from './transcript'
 import { hasThaiVoice, speechAvailable } from './speech'
 
@@ -37,14 +37,21 @@ export function mountUi(settings: Settings, isReal: boolean, h: UiHandlers): voi
   $('#speak-btn').addEventListener('click', () => handlers.onSpeak(latestThai))
   $('#big-btn').addEventListener('click', () => openBig())
   $('#big-view').addEventListener('click', () => ($('#big-view').hidden = true))
-  $('#key-toggle').addEventListener('click', () => {
-    const input = $<HTMLInputElement>('#set-key')
-    input.type = input.type === 'password' ? 'text' : 'password'
-  })
+  document.querySelectorAll<HTMLButtonElement>('.key-toggle').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.for ?? '') as HTMLInputElement
+      input.type = input.type === 'password' ? 'text' : 'password'
+    }),
+  )
+  const providerSel = $<HTMLSelectElement>('#set-provider')
+  providerSel.addEventListener('change', () => showProviderFields(providerSel.value as Provider))
   $('#settings-form').addEventListener('submit', (e) => {
     e.preventDefault()
     const next: Settings = {
       ...current,
+      provider: providerSel.value as Provider,
+      geminiKey: $<HTMLInputElement>('#set-gkey').value.trim(),
+      geminiModel: $<HTMLInputElement>('#set-gmodel').value.trim() || current.geminiModel,
       apiKey: $<HTMLInputElement>('#set-key').value.trim(),
       micSource: micSel.value as MicSource,
       model: $<HTMLInputElement>('#set-model').value.trim() || current.model,
@@ -70,10 +77,22 @@ export function mountUi(settings: Settings, isReal: boolean, h: UiHandlers): voi
     window.speechSynthesis.addEventListener?.('voiceschanged', check)
   }
 
-  if (!settings.apiKey) $<HTMLDetailsElement>('#settings-box').open = true
+  if (!(settings.provider === 'gemini' ? settings.geminiKey : settings.apiKey)) {
+    $<HTMLDetailsElement>('#settings-box').open = true
+  }
+}
+
+function showProviderFields(p: Provider) {
+  document.querySelectorAll<HTMLElement>('[data-provider]').forEach((el) => {
+    el.hidden = el.dataset.provider !== p
+  })
 }
 
 function fillSettings(s: Settings, isReal: boolean) {
+  $<HTMLSelectElement>('#set-provider').value = s.provider
+  showProviderFields(s.provider)
+  $<HTMLInputElement>('#set-gkey').value = s.geminiKey
+  $<HTMLInputElement>('#set-gmodel').value = s.geminiModel
   $<HTMLInputElement>('#set-key').value = s.apiKey
   $<HTMLSelectElement>('#set-mic').value = isReal ? (s.micSource === 'phone' ? 'phone' : 'glasses') : 'browser'
   $<HTMLInputElement>('#set-model').value = s.model

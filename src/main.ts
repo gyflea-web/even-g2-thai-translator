@@ -2,7 +2,8 @@ import { getTextWidth } from '@evenrealities/pretext'
 import './styles.css'
 import { bodyGeometry, connectGlasses } from './glasses'
 import { renderLens } from './lens'
-import { SETTINGS_KEY, parseSettings, type Settings } from './settings'
+import { startGeminiStream } from './gemini-stream'
+import { SETTINGS_KEY, activeKey, parseSettings, type Settings } from './settings'
 import { startTranslationStream, type StreamStatus, type TranslationStream } from './soniox'
 import { speakThai, stopSpeaking } from './speech'
 import { Transcript } from './transcript'
@@ -13,8 +14,9 @@ const AUTO_SPEAK_SETTLE_MS = 1200
 
 const glasses = await connectGlasses()
 let settings: Settings = parseSettings(await glasses.getItem(SETTINGS_KEY))
-if (!settings.apiKey && import.meta.env.DEV && import.meta.env.VITE_SONIOX_API_KEY) {
-  settings.apiKey = String(import.meta.env.VITE_SONIOX_API_KEY)
+if (import.meta.env.DEV) {
+  if (!settings.apiKey && import.meta.env.VITE_SONIOX_API_KEY) settings.apiKey = String(import.meta.env.VITE_SONIOX_API_KEY)
+  if (!settings.geminiKey && import.meta.env.VITE_GEMINI_API_KEY) settings.geminiKey = String(import.meta.env.VITE_GEMINI_API_KEY)
 }
 
 const transcript = new Transcript()
@@ -93,10 +95,7 @@ function onStreamStatus(status: StreamStatus, detail?: string) {
       void showLensStatus('다시 연결 중…')
       break
     case 'live':
-      if (!paused) {
-        setStatus('live', '번역 중 · 태국어 ⇄ 한국어')
-        void showLensStatus(`● 번역 중   ${HINT}`)
-      }
+      if (!paused) showLive()
       break
     case 'error':
       setStatus('error', detail ?? '오류')
@@ -105,6 +104,18 @@ function onStreamStatus(status: StreamStatus, detail?: string) {
     case 'closed':
       setStatus('idle', '멈춤')
       break
+  }
+}
+
+let pendingCount = 0
+
+function showLive() {
+  if (pendingCount > 0) {
+    setStatus('live', '번역하는 중…')
+    void showLensStatus('● 번역하는 중…')
+  } else {
+    setStatus('live', '듣는 중 · 태국어 ⇄ 한국어')
+    void showLensStatus(`● 듣는 중   ${HINT}`)
   }
 }
 
@@ -130,25 +141,31 @@ async function start() {
   paused = false
   setPaused(false)
 
-  if (!settings.apiKey) {
-    setStatus('error', 'Soniox API 키를 입력하세요 (아래 설정).')
+  if (!activeKey(settings)) {
+    setStatus('error', 'API 키를 입력하세요 (아래 설정).')
     await showLensStatus('휴대폰에서 API 키를 입력하세요')
     return
   }
 
-  stream = startTranslationStream(
-    { apiKey: settings.apiKey, model: settings.model },
-    {
-      onTokens: (tokens) => {
-        if (transcript.apply(tokens)) scheduleRender()
-      },
-      onStatus: onStreamStatus,
-      onRestart: () => {
-        transcript.closeOpen()
-        scheduleRender()
-      },
+  pendingCount = 0
+  const handlers = {
+    onTokens: (tokens: Parameters<Transcript['apply']>[0]) => {
+      if (transcript.apply(tokens)) scheduleRender()
     },
-  )
+    onStatus: onStreamStatus,
+    onRestart: () => {
+      transcript.closeOpen()
+      scheduleRender()
+    },
+    onBusy: (n: number) => {
+      pendingCount = n
+      if (!paused) showLive()
+    },
+  }
+  stream =
+    settings.provider === 'gemini'
+      ? startGeminiStream({ apiKey: settings.geminiKey, model: settings.geminiModel }, handlers)
+      : startTranslationStream({ apiKey: settings.apiKey, model: settings.model }, handlers)
   if (!micOn) await startMic()
 }
 
@@ -167,10 +184,7 @@ async function togglePause() {
     await showLensStatus('일시정지 · 탭하면 다시 시작')
   } else {
     await startMic()
-    if (micOn) {
-      setStatus('live', '번역 중 · 태국어 ⇄ 한국어')
-      await showLensStatus(`● 번역 중   ${HINT}`)
-    }
+    if (micOn) showLive()
   }
 }
 

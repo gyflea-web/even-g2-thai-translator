@@ -42,10 +42,25 @@
       <summary>설정</summary>
       <form id="settings-form">
         <label>
+          번역 서비스
+          <select id="set-provider">
+            <option value="gemini">Google Gemini (무료 키, 문장 단위)</option>
+            <option value="soniox">Soniox (유료, 말하는 즉시)</option>
+          </select>
+        </label>
+        <label data-provider="gemini">
+          Gemini API 키
+          <span class="field">
+            <input id="set-gkey" type="password" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey 에서 발급" />
+            <button type="button" class="link key-toggle" data-for="set-gkey">보기</button>
+          </span>
+          <small>구글 계정으로 <b>aistudio.google.com/apikey</b> 에 들어가 "API 키 만들기"를 누르면 무료로 받을 수 있습니다. 키는 이 기기에만 저장됩니다.</small>
+        </label>
+        <label data-provider="soniox">
           Soniox API 키
           <span class="field">
             <input id="set-key" type="password" autocomplete="off" spellcheck="false" placeholder="console.soniox.com 에서 발급" />
-            <button id="key-toggle" type="button" class="link">보기</button>
+            <button type="button" class="link key-toggle" data-for="set-key">보기</button>
           </span>
           <small>키는 이 기기의 Even 앱 저장소에만 보관됩니다. 사용 요금은 본인 Soniox 계정에 청구됩니다.</small>
         </label>
@@ -62,7 +77,12 @@
           읽기 속도
           <input id="set-rate" type="range" min="0.5" max="1.5" step="0.1" />
         </label>
-        <label>
+        <label data-provider="gemini">
+          Gemini 모델
+          <input id="set-gmodel" type="text" autocomplete="off" spellcheck="false" />
+          <small>보통은 바꿀 필요가 없습니다.</small>
+        </label>
+        <label data-provider="soniox">
           음성 인식 모델
           <input id="set-model" type="text" autocomplete="off" spellcheck="false" />
           <small>보통은 바꿀 필요가 없습니다. 연결 오류가 나면 Soniox 콘솔에서 최신 실시간 모델 이름을 확인하세요.</small>

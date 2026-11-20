@@ -6,9 +6,25 @@
   "min_sdk_version": "0.0.16",
   "entrypoint": "index.html",
   "permissions": [
-    { "name": "g2-microphone", "desc": "Listens through the glasses mic to translate Thai speech into Korean captions." },
-    { "name": "phone-microphone", "desc": "Optional: use the phone mic instead of the glasses mic." },
-    { "name": "network", "desc": "Streams audio to Soniox for real-time speech recognition and Thai-Korean translation.", "whitelist": ["wss://stt-rt.soniox.com"] }
+    {
+      "name": "g2-microphone",
+      "desc": "Listens through the glasses mic to translate Thai speech into Korean captions."
+    },
+    {
+      "name": "phone-microphone",
+      "desc": "Optional: use the phone mic instead of the glasses mic."
+    },
+    {
+      "name": "network",
+      "desc": "Sends speech to Google Gemini or Soniox for speech recognition and Thai-Korean translation.",
+      "whitelist": [
+        "https://generativelanguage.googleapis.com",
+        "wss://stt-rt.soniox.com"
+      ]
+    }
   ],
-  "supported_languages": ["ko", "en"]
+  "supported_languages": [
+    "ko",
+    "en"
+  ]
 }

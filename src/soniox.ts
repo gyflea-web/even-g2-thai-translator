@@ -34,6 +34,8 @@ export interface StreamHandlers {
   onStatus: (status: StreamStatus, detail?: string) => void
   /** Called before a reconnect so the caller can close unfinished sentences. */
   onRestart?: () => void
+  /** Number of utterances waiting for a translation (Gemini only). */
+  onBusy?: (pending: number) => void
 }
 
 export interface TranslationStream {

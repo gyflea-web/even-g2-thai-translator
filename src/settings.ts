@@ -1,8 +1,16 @@
+import { GEMINI_DEFAULT_MODEL } from './gemini'
 import { DEFAULT_MODEL } from './soniox'
 
 export type MicSource = 'glasses' | 'phone' | 'browser'
+export type Provider = 'gemini' | 'soniox'
 
 export interface Settings {
+  /** Which translation service to use. */
+  provider: Provider
+  /** Google AI Studio key (Gemini). */
+  geminiKey: string
+  geminiModel: string
+  /** Soniox key. */
   apiKey: string
   micSource: MicSource
   model: string
@@ -16,6 +24,9 @@ export interface Settings {
 export const SETTINGS_KEY = 'thai-translator.settings.v1'
 
 export const DEFAULT_SETTINGS: Settings = {
+  provider: 'gemini',
+  geminiKey: '',
+  geminiModel: GEMINI_DEFAULT_MODEL,
   apiKey: '',
   micSource: 'glasses',
   model: DEFAULT_MODEL,
@@ -30,8 +41,10 @@ export function parseSettings(raw: string | null | undefined): Settings {
     const obj = JSON.parse(raw) as Partial<Settings>
     const s = { ...DEFAULT_SETTINGS, ...obj }
     if (!['glasses', 'phone', 'browser'].includes(s.micSource)) s.micSource = 'glasses'
-    if (typeof s.apiKey !== 'string') s.apiKey = ''
-    s.apiKey = s.apiKey.trim()
+    if (s.provider !== 'gemini' && s.provider !== 'soniox') s.provider = 'gemini'
+    s.apiKey = typeof s.apiKey === 'string' ? s.apiKey.trim() : ''
+    s.geminiKey = typeof s.geminiKey === 'string' ? s.geminiKey.trim() : ''
+    if (typeof s.geminiModel !== 'string' || !s.geminiModel.trim()) s.geminiModel = GEMINI_DEFAULT_MODEL
     if (typeof s.model !== 'string' || !s.model.trim()) s.model = DEFAULT_MODEL
     s.showMine = !!s.showMine
     s.autoSpeak = !!s.autoSpeak
@@ -42,4 +55,9 @@ export function parseSettings(raw: string | null | undefined): Settings {
   } catch {
     return { ...DEFAULT_SETTINGS }
   }
+}
+
+/** Key for the selected provider. */
+export function activeKey(s: Settings): string {
+  return s.provider === 'gemini' ? s.geminiKey : s.apiKey
 }

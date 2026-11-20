@@ -313,3 +313,12 @@ select {
   margin: 0 0 24px;
   word-break: break-word;
 }
+
+[hidden] {
+  display: none !important;
+}
+
+.field button {
+  white-space: nowrap;
+  flex: none;
+}
