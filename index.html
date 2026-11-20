@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>태국어 통역</title>
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>태국어 통역</h1>
+        <div id="status" data-kind="idle">시작하는 중…</div>
+      </div>
+      <button id="pause-btn" type="button">일시정지</button>
+    </header>
+
+    <p id="preview-note" class="note" hidden>
+      브라우저 미리보기입니다. 실제 안경 대신 아래 "렌즈 미리보기"에 자막이 나오고, 이 컴퓨터의 마이크를 씁니다.
+      미리보기를 클릭하면 안경 탭, 더블클릭하면 두 번 탭과 같습니다.
+    </p>
+
+    <section class="card show">
+      <h2>상대에게 보여주기</h2>
+      <p id="show-thai" class="thai placeholder" lang="th">한국어로 말하면 태국어 번역이 여기에 크게 나옵니다.</p>
+      <p id="show-ko" class="ko-small"></p>
+      <div class="row">
+        <button id="speak-btn" type="button" disabled>🔊 태국어로 읽어주기</button>
+        <button id="big-btn" type="button" disabled>크게 보기</button>
+      </div>
+      <p id="tts-note" class="note"></p>
+    </section>
+
+    <section class="card">
+      <div class="row between">
+        <h2>대화</h2>
+        <button id="clear-btn" type="button" class="link">지우기</button>
+      </div>
+      <div id="log" aria-live="polite"></div>
+    </section>
+
+    <details id="settings-box" class="card">
+      <summary>설정</summary>
+      <form id="settings-form">
+        <label>
+          Soniox API 키
+          <span class="field">
+            <input id="set-key" type="password" autocomplete="off" spellcheck="false" placeholder="console.soniox.com 에서 발급" />
+            <button id="key-toggle" type="button" class="link">보기</button>
+          </span>
+          <small>키는 이 기기의 Even 앱 저장소에만 보관됩니다. 사용 요금은 본인 Soniox 계정에 청구됩니다.</small>
+        </label>
+        <label>
+          마이크
+          <select id="set-mic">
+            <option value="glasses">안경 마이크</option>
+            <option value="phone">휴대폰 마이크</option>
+          </select>
+        </label>
+        <label class="check"><input id="set-mine" type="checkbox" /> 내가 한 말도 렌즈에 표시</label>
+        <label class="check"><input id="set-speak" type="checkbox" /> 내 말의 태국어 번역을 자동으로 읽어주기</label>
+        <label>
+          읽기 속도
+          <input id="set-rate" type="range" min="0.5" max="1.5" step="0.1" />
+        </label>
+        <label>
+          음성 인식 모델
+          <input id="set-model" type="text" autocomplete="off" spellcheck="false" />
+          <small>보통은 바꿀 필요가 없습니다. 연결 오류가 나면 Soniox 콘솔에서 최신 실시간 모델 이름을 확인하세요.</small>
+        </label>
+        <button type="submit" class="primary">저장하고 다시 연결</button>
+        <p id="save-note" class="note"></p>
+      </form>
+    </details>
+
+    <details id="lens-box" class="card">
+      <summary>렌즈 미리보기</summary>
+      <div id="lens-preview" title="클릭: 탭 · 더블클릭: 두 번 탭">
+        <div class="lens-status"></div>
+        <div class="lens-body"></div>
+      </div>
+      <small>실제 안경 글꼴에는 태국 문자가 없어서 렌즈에는 한국어만 표시합니다.</small>
+    </details>
+
+    <div id="big-view" hidden>
+      <p id="big-text" lang="th"></p>
+      <small>화면을 누르면 닫힙니다</small>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
